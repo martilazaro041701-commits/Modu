@@ -1,9 +1,9 @@
-import Dashboard from './pages/Dashboard';
+import ModuDashboard from '@/modules/modu/pages/Dashboard';
 import './App.css';
 
 function App() {
   return (
-    <Dashboard />
+    <ModuDashboard />
   );
 }
 

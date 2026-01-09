@@ -1,15 +1,14 @@
-import { motion} from 'framer-motion';
-
+import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
 /* APP CARDS */
-
 const APPS = [
   {
-    id:'bark',
+    id: 'bark',
     name: 'BARK',
     logo: '/assets/Icons/Bark Favicon.png',
     badge: 'LIVE',
-    badgeColor : 'bg-emerald-500 text-emerald-950',
+    badgeColor: 'bg-emerald-500 text-emerald-950',
     tagline: 'Your Personal Repair Intelligence System',
     version: 'Version 1.0',
     description: 'A centralized kernel transitioning automotive shops from static sheets to real-time data. Manage repair lifecycles, technician assignments, and turn manual logs into actionable analytics.'
@@ -38,6 +37,17 @@ const APPS = [
 ];
 
 export default function ToolScroller() {
+  const navigate = useNavigate();
+
+  // Navigation handler based on App ID
+  const handleLaunchApp = (appId) => {
+    if (appId === 'bark') {
+      navigate('/bark');
+    } else if (appId === 'admin') {
+      navigate('/admin'); // If you have an admin route ready
+    }
+  };
+
   return (
     /* The container is now a vertical scroll area with snapping */
     <div className="h-full w-full overflow-y-auto snap-y snap-mandatory no-scrollbar flex flex-col gap-8 py-[15vh]">
@@ -53,7 +63,7 @@ export default function ToolScroller() {
           transition={{ duration: 0.4, ease: "easeOut" }}
           className="snap-center shrink-0 w-full max-w-[500px] mx-auto cursor-default rounded-[2.5rem] bg-white/5 border border-white/10 backdrop-blur-xl overflow-hidden group shadow-2xl"
         >
-         
+          
           <div className="p-10 flex flex-col items-start text-left h-full relative">
 
             {/* Header: Logo + Name + Badges */}
@@ -62,32 +72,35 @@ export default function ToolScroller() {
                 <div className="w-14 h-14 rounded-2xl bg-white/10 p-2 border border-white/10">
                   <img
                     src={app.logo}
-                    className={`w-full h-full object-contain ${app.logoClassName || ""}`.trim()}
+                    className={`w-full h-full object-contain p-2 ${app.logoClassName || ""}`.trim()}
                     alt={`${app.name} logo`}
                   />
+                </div>
+                <div>
+                  <h2 className="text-3xl font-bold text-white tracking-wide">{app.name}</h2>
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${app.badgeColor}`}>
+                    {app.badge}
+                  </span>
+                </div>
               </div>
-              <div>
-              <h2 className="text-3xl font-bold text-white tracking-wide">{app.name}</h2>
-              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${app.badgeColor}`}>
-                {app.badge}
-                </span>
+              <p className="text-white/30 text-xs font-mono">{app.version}</p>
             </div>
-          </div>
-          <p className="text-white/30 text xs font-mono">{app.version}</p>
-        </div>
 
-          {/* Description Body */}
+            {/* Description Body */}
             <div className="mb-8 space-y-4">
-               <p className="text-emerald-400 text-xs font-bold uppercase tracking-widest">{app.tagline}</p>
-               <p className="text-white/70 text-sm leading-relaxed font-light">
-                 {app.description}
-               </p>
+              <p className="text-emerald-400 text-xs font-bold uppercase tracking-widest">{app.tagline}</p>
+              <p className="text-white/70 text-sm leading-relaxed font-light">
+                {app.description}
+              </p>
             </div>
 
-            {/* Action Button - Only shows 'Start' if LIVE */}
+            {/* Action Button - Updated with handleLaunchApp */}
             <div className="w-full mt-auto">
               {app.badge === 'LIVE' ? (
-                <button className="w-full py-4 bg-white text-emerald-950 rounded-xl font-bold tracking-wider hover:bg-modu-mint hover:scale-[1.02] transition-all shadow-lg">
+                <button 
+                  onClick={() => handleLaunchApp(app.id)}
+                  className="w-full py-4 bg-white text-emerald-950 rounded-xl font-bold tracking-wider hover:bg-[#3ED6A5] hover:scale-[1.02] transition-all shadow-lg active:scale-95"
+                >
                   START APPLICATION
                 </button>
               ) : (
@@ -99,6 +112,9 @@ export default function ToolScroller() {
           </div>
         </motion.div>
       ))}
+      
+      {/* Spacer for bottom scroll padding */}
+      <div className="shrink-0 h-[150px]" /> 
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-export default function SidebarLeft() {
+export default function Sidebar() {
   // Mock Data - In real app this comes from API
   const [activities, setActivities] = useState([
     { id: 1, text: "Created new customer data", app: "BARK", time: "10m ago" },

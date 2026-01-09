@@ -1,24 +1,21 @@
-import { BrowserRouter as Router, Link, Route, Routes } from "react-router-dom";
-import Home from "./pages/Home";
-import ApiStatus from "./pages/ApiStatus";
+import { Routes, Route, Navigate } from 'react-router-dom';
+import ModuDashboard from '@/modules/modu/pages/Dashboard';
+import BarkDashboard from '@/modules/bark/pages/BarkDashboard';
 
-export default function App() {
+function App() {
   return (
-    <Router>
-      <main className="page">
-        <nav className="nav">
-          <div className="logo">BARK</div>
-          <div className="links">
-            <Link to="/">Home</Link>
-            <Link to="/status">API Status</Link>
-          </div>
-        </nav>
-
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/status" element={<ApiStatus />} />
-        </Routes>
-      </main>
-    </Router>
+  
+      <Routes>
+        {/* If user hits the root, send them to dashboard */}
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        
+        {/* MODU World */}
+        <Route path="/dashboard" element={<ModuDashboard />} />
+        
+        {/* BARK World */}
+        <Route path="/bark" element={<BarkDashboard />} />
+      </Routes>
   );
 }
+
+export default App;

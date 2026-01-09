@@ -1,0 +1,41 @@
+const StatusCategory = Object.freeze({
+    APPROVAL: "approval",
+    APPROVAL_SUB: Object.freeze({
+        ESTIMATE_DONE: "estimate_done",
+        LOA_PROCESSING: "loa_processing",
+        LOA_REJECTED: "loa_rejected",
+        LOA_REVISING: "loa_revising",
+        LOA_APPROVED: "loa_approved",
+        FINAL_CONFIRMATION: "final_confirmation",
+    }),
+    PARTS: "parts",
+    PARTS_SUB: Object.freeze({
+        PARTS_ORDERED: "parts_ordered",
+        PARTS_AVAILABLE: "parts_available",
+        PARTIAL_PARTS_RECEIVED: "partial_parts_received",
+        PARTS_COMPLETE: "parts_complete",
+    }),
+    REPAIR: "repair",
+    REPAIR_SUB: Object.freeze({
+        WAITING_FOR_SCHEDULING: "waiting_for_scheduling",
+        REPAIR_STARTED: "repair_started",
+        ONGOING_BODY_REPAIR: "ongoing_body_repair",
+        WAITING_FOR_REMAINING_PARTS: "waiting_for_remaining_parts",
+        ONGOING_BODY_PAINT: "ongoing_body_paint",
+        ONGOING_BODY_WORK: "ongoing_body_work",
+        FINAL_INSPECTION:"final_inspection",
+    }),
+    PICKUP: "pickup",
+    PICKUP_SUB: Object.freeze({
+        PICKUP_READY: "pickup_ready",
+        CONTACTED_CUSTOMER: "contacted_customer",
+        CAR_RELEASED: "car_released",
+    }),
+    BILLING: "billing",
+    BILLING_SUB: Object.freeze({
+        PENDING: "pending",
+        PAID: "paid",
+        RELEASED: "released",
+    }),
+    DISMANTLE: "dismantle",
+})

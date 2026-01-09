@@ -1,8 +1,8 @@
-import ToolScroller from './components/ToolScroller';
-import SideBarLeft from './components/LeftSideBar_Widget';
-import SideBarRight from './components/RightSideBar_Widget';
+import ToolScroller from "../components/ToolScroller";
+import Sidebar from "../../../components/layout/Sidebar";
+import RightPanel from "../../../components/layout/RightPanel";
 
-export default function Dashboard() {
+export default function ModuDashboard() {
   return (
     <div className="relative min-h-screen w-full font-sans overflow-hidden text-white">
       
@@ -38,28 +38,40 @@ export default function Dashboard() {
 
         {/* Center: Brand */}
         <div className="absolute left-1/2 -translate-x-1/2">
-          <h1 className="text-3xl font-light tracking-[0.5em] text-white">MODU</h1>
+          <h1 className="text-3xl font-light tracking-[0.5em] text-[#3ED6A5] drop-shadow-[0_2px_12px_rgba(62,214,165,0.35)]">MODU</h1>
         </div>
 
         {/* Right: Actions & Logo */}
         <div className="flex items-center gap-6">
             <button className="p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-colors">
               {/* Alert Icon */}
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+              <img
+                src="assets/DesignElements/alert-icon.png"
+                alt="Alerts"
+                className="w-6 h-6 object-contain opacity-70 group-hover:opacity-100 transition-opacity"
+              />
             </button>
             <button className="p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-colors">
               {/* Bell Icon */}
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+              <img 
+                src="assets/DesignElements/notif-icon.png"
+                alt="Notifications"
+                className="w-6 h-6 object-contain opacity-70 group-hover:opactity-100 transition-opactity"
+              />
             </button>
             <div className="h-8 w-[1px] bg-white/20 mx-2" />
-            <img src="/assets/Modu%20Favicon.png" alt="Logo" className="w-10 h-10 object-contain opacity-80" />
+            <img
+              src="/assets/Icons/modu-favicon.png"
+              alt="Logo"
+              className="w-24 h-24 object-contain opacity-100 drop-shadow-[0_2px_10px_rgba(0,0,0,0.35)]"
+            />
         </div>
       </header>
 
       {/* 3. Main Grid Layout */}
       <div className="relative z-10 grid grid-cols-[350px_1fr_350px] h-[calc(100vh-90px)] px-8 gap-8 pt-8">
         <aside className="h-full overflow-hidden pb-8">
-          <SideBarLeft />
+          <Sidebar />
         </aside>
 
         <main className="h-full overflow-hidden relative">
@@ -69,7 +81,7 @@ export default function Dashboard() {
         </main>
 
         <aside className="h-full overflow-hidden pb-8">
-          <SideBarRight />
+          <RightPanel />
         </aside>
       </div>
     </div>
