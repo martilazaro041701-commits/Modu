@@ -2,7 +2,7 @@ from django.contrib import admin
 
 
 
-from .models import InsuranceCompany, RepairJob, Status, StatusLog, Vehicle
+from .models import Customer, InsuranceCompany, Job, JobHistory, RepairJob, Status, StatusLog, Vehicle
 
 
 @admin.register(Status)
@@ -19,6 +19,28 @@ class StatusLogAdmin(admin.ModelAdmin):
     list_filter = ("status", "changed_at")
     search_fields = ("repair_job__repairjob_uid", "status__status_name")
     list_select_related = ("repair_job", "status")
+
+
+@admin.register(JobHistory)
+class JobHistoryAdmin(admin.ModelAdmin):
+    list_display = ("job", "status", "timestamp")
+    list_filter = ("status", "timestamp")
+    search_fields = ("job__id", "status__status_name")
+    list_select_related = ("job", "status")
+
+
+@admin.register(Job)
+class JobAdmin(admin.ModelAdmin):
+    list_display = ("id", "customer", "current_status", "created_at")
+    list_filter = ("current_status", "created_at")
+    search_fields = ("customer__name", "vehicle_details", "id")
+    list_select_related = ("customer", "current_status")
+
+
+@admin.register(Customer)
+class CustomerAdmin(admin.ModelAdmin):
+    list_display = ("name", "phone_number", "email", "modu_customer_id", "synced_to_modu")
+    search_fields = ("name", "phone_number", "email", "modu_customer_id")
 
 
 @admin.register(RepairJob)

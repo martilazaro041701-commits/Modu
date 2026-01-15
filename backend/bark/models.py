@@ -1,8 +1,9 @@
 import uuid
-from django.db import models
-from django.conf import settings
-from decimal import Decimal
 import datetime
+from decimal import Decimal
+from django.conf import settings
+from django.db import models
+from django.utils import timezone
 
 
 def generate_bark_job_number():
@@ -58,6 +59,107 @@ class Status(models.Model):
         return f"[{self.get_category_display()}] {self.status_name}"
 
 
+class Customer(models.Model):
+    name = models.CharField(max_length=255)
+    phone_number = models.CharField(max_length=50, blank=True, default="")
+    email = models.EmailField(blank=True, default="")
+    modu_customer_id = models.CharField(max_length=100, blank=True, null=True)
+    synced_to_modu = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    @classmethod
+    def upsert_by_phone(cls, *, phone_number, name, email=""):
+        customer = None
+        if phone_number:
+            customer = cls.objects.filter(phone_number=phone_number).first()
+
+        if customer:
+            updates = {}
+            if name and customer.name != name:
+                updates["name"] = name
+            if email and customer.email != email:
+                updates["email"] = email
+            if updates:
+                for field, value in updates.items():
+                    setattr(customer, field, value)
+                customer.save(update_fields=[*updates.keys(), "updated_at"])
+            return customer, False
+
+        customer = cls.objects.create(
+            name=name,
+            phone_number=phone_number or "",
+            email=email or "",
+            synced_to_modu=False,
+        )
+        return customer, True
+
+    def __str__(self):
+        return self.name
+
+
+class Job(models.Model):
+    customer = models.ForeignKey("bark.Customer", on_delete=models.PROTECT, related_name="jobs")
+    vehicle_details = models.TextField()
+    current_status = models.ForeignKey("bark.Status", on_delete=models.SET_NULL, null=True, blank=True)
+    scheduled_repair_date = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    @classmethod
+    def create_with_customer_autofill(cls, *, customer_name, phone_number="", email="", **job_fields):
+        customer, _created = Customer.upsert_by_phone(
+            phone_number=phone_number, name=customer_name, email=email
+        )
+        return cls.objects.create(customer=customer, **job_fields)
+
+    def advance_to_scheduling(self):
+        if self.current_status_id not in (13, 14):
+            raise ValueError("Advance to scheduling requires Partial Parts Received or Parts Complete.")
+        self.current_status = Status.objects.get(pk=21)
+        self.save(update_fields=["current_status", "updated_at"])
+        return self
+
+    def can_proceed_to_scheduling(self):
+        return self.current_status_id in (13, 14)
+
+    @property
+    def waiting_for_parts(self):
+        return self.current_status_id == 13
+
+    def has_reached_milestone(self, status_pk):
+        return self.history.filter(status_id=status_pk).exists()
+
+    def get_available_transitions(self):
+        if self.current_status and self.current_status.category == "PARTS":
+            return [21] if self.can_proceed_to_scheduling() else []
+        return []
+
+    @property
+    def is_overdue(self):
+        if not self.current_status:
+            return False
+        if self.current_status.category != "BILLING" or self.current_status.status_name != "Pending":
+            return False
+        last_entry = self.history.filter(status=self.current_status).order_by("-timestamp").first()
+        if not last_entry:
+            return False
+        overdue_threshold = timezone.now() - datetime.timedelta(days=30)
+        return last_entry.timestamp <= overdue_threshold
+
+    def __str__(self):
+        return f"Job {self.id}"
+
+
+class JobHistory(models.Model):
+    job = models.ForeignKey("bark.Job", on_delete=models.CASCADE, related_name="history")
+    status = models.ForeignKey("bark.Status", on_delete=models.PROTECT)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.job} -> {self.status} @ {self.timestamp}"
+
+
 class RepairJob(models.Model):
     job_number = models.CharField(
         max_length=20, 
@@ -93,6 +195,10 @@ class RepairJob(models.Model):
     repair_order = models.TextField()
     labor_cost = models.DecimalField(max_digits=10, decimal_places=2)
     job_order = models.TextField()
+    total_labor = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    total_parts = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    service_tax = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    grand_total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     # ------- PHASE 2 (APPROVED PHASE) ------
     approved_estimate = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     approved_repair_order = models.TextField(null=True, blank=True)
@@ -144,8 +250,8 @@ class JobMedia(models.Model):
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
 
-
-
-
-
-
+class EstimateItem(models.Model):
+    repair_job = models.ForeignKey(RepairJob, on_delete=models.CASCADE, related_name="estimate_items")
+    description = models.CharField(max_length=255)
+    part_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    labor_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0)
